@@ -10,18 +10,14 @@ renamed later; nothing in the code depends on the directory name.
 
 ## What this is
 
-A Pi extension that turns one audio file into a Markdown transcript with speaker turns. Diarization
-is the reason the tool exists — Deepgram returns it, and the point is a document where you can see
-who said what. It is on by default and can be turned off (`DIARIZE_OUTPUT`, amended 2026-11-07);
-with it off the turns are still there, unattributed.
+A Pi extension that turns one audio file into a Markdown transcript with speaker turns using a user-supplied API. At the moment, DeepGram is the only option. Diarization is on by default and can be turned off (`DIARIZE_OUTPUT`, amended 2026-11-07); with it off the turns are still there, unattributed.
 
 Three pieces:
 
 - **`transcribe_audio`** (tool) — takes a path and an optional `language` override, uploads the
   whole file to Deepgram's pre-recorded endpoint, receives JSON, assembles Markdown, places it at
   the output path. The override is for one call only; it never writes back to `.env`.
-- **`rename_speakers`** (tool) — takes a transcript path and a list of names, rewrites the speaker
-  labels in place. No network, no cost. Refuses a transcript that carries no labels.
+- **`rename_speakers`** (tool) — takes a transcript path and a list of names, deterministically rewrites speaker labels to a given list of names.
 - **`transcribe-audio`** (skill) — the agent-facing instructions: when to use the tool, what to ask
   the user, what the two hard limits are, and the two-phase review flow.
 
@@ -43,14 +39,9 @@ Three pieces:
 7. `rename_speakers` rewrites the labels in place and the agent reports the new path. Without
    diarization there is nothing to rewrite, and the tool says so.
 
-Nothing is committed by the agent at any point. Commits are Fry's.
-
 ### The transcript
 
-Markdown, for a human. A short metadata block as a plain list — source file, model, language,
-duration, speakers detected, diarizer version, run timestamp — followed by turns. The speaker count
-and the diarizer version appear only when diarization is on; with it off the metadata block says so
-rather than reporting a count of nobody.
+Markdown, for both humans and agents. A short metadata block as a plain list — source file, model, language, duration, speakers detected, diarizer version, run timestamp — followed by turns. The speaker count and the diarizer version appear only when diarization is on; with it off the metadata block says so rather than reporting a count of nobody.
 
 ```markdown
 - **Source:** meeting-2026-03-04.m4a
@@ -59,18 +50,19 @@ rather than reporting a count of nobody.
 - **Duration:** 41m 12s
 - **Speakers detected:** 3
 - **Run:** 2026-11-06T19:41:02Z
+- **Speaker names:** Alice, Bob, Charlie
 
-**Speaker 1:** We should start with the numbers from last quarter.
-**Speaker 2:** They're in the shared drive, but they're a week old.
+**Alice[Speaker 1]:** We should start with the numbers from last quarter.
+**Bob[Speaker 2]:** They're in the shared drive, but they're a week old.
+**Charlie[Speaker 3]:** I can pull the latest from the database and send them to you.
 ```
 
 No YAML frontmatter: this file is read by people and by `grep`, not parsed. Beside it in the output
-directory, same basename, sits `transcription-<name>.json`: the Deepgram response exactly as received,
-never re-serialised, so the Markdown can be rebuilt from it without another API call.
+directory, same basename, sits `transcription-<name>.json`: the Deepgram response exactly as received,never re-serialised, so the Markdown can be rebuilt from it without another API call.
 
 ## The fence
 
-In:
+In Scope:
 
 - one audio file on local disk, ≤ 2 GB, passed as a path;
 - Diarized transcription via Deepgram, model `nova-3` by default, language `en` by default and
@@ -80,16 +72,20 @@ In:
 - speaker names applied after review;
 - defaults for every tool option read from `./.env` in the working directory.
 
-Out:
+Out of Scope:
 
-- chunking, splitting, silence detection;
-- `ffmpeg` and `ffprobe`, in any form;
 - streaming and realtime audio;
 - any provider other than Deepgram;
 - an own credential store or a `login` command;
 - URLs, remote paths, directories, and batches of files;
 - subtitle formats (SRT, VTT), translations, summaries, sentiment;
+
+Planned:
+
 - CI, and dependency scanning beyond npm.
+- chunking, splitting, silence detection;
+- `ffmpeg` and `ffprobe`, in any form;
+
 
 ## Build order
 
@@ -110,7 +106,7 @@ the file and what goes in it; the agent writes what it was given, shows the diff
 
 ## Done when
 
-- One real two-speaker recording produces a Markdown file at the default path, with every turn
+- One real three-speaker recording produces a Markdown file at the default path, with every turn
   attributed and readable.
 - The same recording, with names supplied after review, ends up with the names in place and no
   `Speaker N` labels left.
