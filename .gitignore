@@ -1,0 +1,29 @@
+# Secrets — never commit. .env.example is the only env file that belongs in git.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
+
+# Audio inputs and transcripts: may contain recorded speech, keep them out.
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.flac
+*.webm
+
+# TypeScript / Node
+node_modules/
+dist/
+build/
+out/
+*.tsbuildinfo
+coverage/
+*.log
+npm-debug.log*
+
+# Editors / OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,24 @@
+# Decision log
+
+- 2026-11-06 — Full files only, no chunking. Chunking needs ffmpeg/ffprobe, which nothing here can scan.
+- 2026-11-06 — 2 GB and 10-minute processing are product limits, not bugs.
+- 2026-11-07 — Diarization via `diarize_model=latest`, on by default; `DIARIZE_OUTPUT=false` omits the parameter and turns become unattributed paragraphs. `diarize=true` is deprecated and pins v1.
+- 2026-11-06 — Turns come from `utterances=true`, not from re-grouping `words[]`.
+- 2026-11-06 — Speaker names applied after the user reads the transcript, never before.
+- 2026-11-06 — `rename_speakers` tool rewrites `**Speaker N:**` line prefixes; refuses a transcript with no labels. Rejected agent find/replace (`Speaker 1` vs `Speaker 10`) and re-running the API.
+- 2026-11-06 — Whole-file upload, not streaming. Pre-recorded is cheaper for the same audio.
+- 2026-11-06 — Raw JSON in `.scratch/<name>-<timestamp>/`, Markdown assembled there and moved into place, directory deleted once the Markdown is in place.
+- 2026-11-06 — Every transcript is a pair: the Markdown and the verbatim Deepgram JSON beside it, same basename, both kept.
+- 2026-11-06 — The Markdown is rendered from the saved JSON, so re-formatting never costs an API call.
+- 2026-11-06 — Output is Markdown with a plain metadata list, default `./transcriptions/transcription-<name>.md`, `output` is an exact path.
+- 2026-11-06 — Credentials from `./.env` in the working directory.
+- 2026-11-06 — Every tool option has a default settable in `.env`, the key is not a special case.
+- 2026-11-07 — Environment variables are provider-agnostic (`MODEL`, `LANGUAGE`, `DIARIZE_OUTPUT`); only the key names its provider (`DEEPGRAM_API_KEY`).
+- 2026-11-09 — `LANGUAGE` defaults to `en` and is sent on every request; `transcribe_audio` takes an optional `language` override for one file. Not auto-detection: that is `detect_language`, a separate feature, and not bought.
+- 2026-11-06 — Missing key is a notice and a disabled tool, not a fatal error. The agent can run without a key, but the transcription tools are disabled.
+- 2026-11-06 — Fail before upload: non-audio and ≥2 GB refused locally, 12-minute client timeout.
+- 2026-11-07 — Duration probe deferred pending measurement. Whether 2 GB or Deepgram's ten-minute processing limit binds first is unmeasured.
+- 2026-11-07 — The repository is public from the first push. Vulnerability reports arrive on GitHub's private form, with `security@o1.is` as fallback; no response-time number, no bounty, scope limited to this repository's code and information.
+- 2026-11-07 — No file layout in the spec. Work in big blocks until there is a reason to split, and create no file and no scaffold without an explicit instruction naming the file and what goes in it.
+- 2026-11-09 — Request parameters sent by default: `smart_format`, `diarize_model=latest`, `punctuate`, `paragraphs`, `utterances`, `numerals`, all true. Never sent: `profanity_filter`, `redact`, `replace`, `search`, `keywords`, `filler_words`, and every Audio Intelligence feature (`summarize`, `topics`, `intents`, `detect_entities`, `sentiment`).
+- 2026-11-06 — No git commits by the agent. Every commit here is a human decision, not an agent decision. The agent can propose a commit, but the human must approve it.
