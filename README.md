@@ -1,8 +1,10 @@
+# Unreleased. There is no runnable code yet.
+
 # pi-diarize
 
-A Pi extension that turns one audio file into a Markdown transcript with speaker turns.
+A Pi extension that can turn audio files into a Markdown transcript with speaker turns.
 Diarization is the point: the transcript is meant to be read, and you can see who said what. It is
-on by default and can be turned off.
+on by default, but can be turned off.
 
 Status: v0.1 — spec agreed, no runnable code yet. The spec is `docs/spec.md`; the code is being
 written.
