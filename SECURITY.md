@@ -23,5 +23,8 @@ local configuration, and not a transcript that ended up somewhere public.
 
 ## What is in this repository
 
-No credentials, and none in its history. Transcripts and audio are gitignored. The only environment
-file tracked here is `.env.example`, which has empty values.
+No credentials, and none in its history. Transcripts and audio are gitignored. The only credential
+the extension reads is `<agent-dir>/diarize-auth.json`, outside this repository and mode `0600`,
+written by `/diarize login`; `DEEPGRAM_API_KEY` in the environment wins where it is set. The key is
+never written into a transcript, a log, or an error message, and no project-local file is read for
+it.

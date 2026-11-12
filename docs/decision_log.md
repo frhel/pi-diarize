@@ -11,10 +11,7 @@
 - 2026-11-06 — Every transcript is a pair: the Markdown and the verbatim Deepgram JSON beside it, same basename, both kept.
 - 2026-11-06 — The Markdown is rendered from the saved JSON, so re-formatting never costs an API call.
 - 2026-11-06 — Output is Markdown with a plain metadata list, default `./transcriptions/transcription-<name>.md`, `output` is an exact path.
-- 2026-11-06 — Credentials from `./.env` in the working directory.
-- 2026-11-06 — Every tool option has a default settable in `.env`, the key is not a special case.
-- 2026-11-07 — Environment variables are provider-agnostic (`MODEL`, `LANGUAGE`, `DIARIZE_OUTPUT`); only the key names its provider (`DEEPGRAM_API_KEY`).
-- 2026-11-09 — `LANGUAGE` defaults to `en` and is sent on every request; `transcribe_audio` takes an optional `language` override for one file. Not auto-detection: that is `detect_language`, a separate feature, and not bought.
+- 2026-11-09 — Language defaults to `en` and is sent on every request; `transcribe_audio` takes an optional `language` override for one file. Not auto-detection: that is `detect_language`, a separate feature, and not bought.
 - 2026-11-06 — Missing key is a notice and a disabled tool, not a fatal error. The agent can run without a key, but the transcription tools are disabled.
 - 2026-11-06 — Fail before upload: non-audio and ≥2 GB refused locally, 12-minute client timeout.
 - 2026-11-07 — Duration probe deferred pending measurement. Whether 2 GB or Deepgram's ten-minute processing limit binds first is unmeasured.
@@ -22,3 +19,6 @@
 - 2026-11-07 — No file layout in the spec. Work in big blocks until there is a reason to split, and create no file and no scaffold without an explicit instruction naming the file and what goes in it.
 - 2026-11-09 — Request parameters sent by default: `smart_format`, `diarize_model=latest`, `punctuate`, `paragraphs`, `utterances`, `numerals`, all true. Never sent: `profanity_filter`, `redact`, `replace`, `search`, `keywords`, `filler_words`, and every Audio Intelligence feature (`summarize`, `topics`, `intents`, `detect_entities`, `sentiment`).
 - 2026-11-06 — No git commits by the agent. Every commit here is a human decision, not an agent decision. The agent can propose a commit, but the human must approve it.
+- 2026-11-12 — Measured: 100 minutes of M4A in 61 s, 99× realtime. The ten-minute ceiling covers about 16 hours; the 2 GB cap binds first only for uncompressed 16 kHz WAV. Two-hour public ceiling stands, probe still deferred.
+- 2026-11-12 — nova-3 with `diarize_model=latest`. v1 is worse (mean speaker_confidence 0.485 against 0.794) and v2's speaker count is not reproducible — 2 clusters in one run, 4 in three others on identical input — so nothing may depend on it: `rename_speakers` stays manual.
+- 2026-11-12 — The key lives in `<agent-dir>/diarize-auth.json`, written by `/diarize login`. The model is pi-diarize's own option in its bundled `settings.json`, overridden by `PI_DIARIZE_MODEL`. `DEEPGRAM_API_KEY` in the environment wins where it is set, so CI and scripts keep working. The file sits in the agent directory.

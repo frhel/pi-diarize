@@ -1,7 +1,7 @@
-# Secrets — never commit. .env.example is the only env file that belongs in git.
+# Secrets — never commit. The extension reads no env file; these rules only guard against the
+# files other tools leave lying around in a working directory.
 .env
 .env.*
-!.env.example
 *.pem
 *.key
 secrets.*
@@ -13,6 +13,10 @@ secrets.*
 *.ogg
 *.flac
 *.webm
+
+# …except the committed test fixtures, which are chosen, verified and licensed
+# in test/fixtures/README.md.
+!test/fixtures/*.wav
 
 # TypeScript / Node
 node_modules/

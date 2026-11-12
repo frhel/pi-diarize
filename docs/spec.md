@@ -12,14 +12,16 @@ renamed later; nothing in the code depends on the directory name.
 
 A Pi extension that turns one audio file into a Markdown transcript with speaker turns using a user-supplied API. At the moment, DeepGram is the only option. Diarization is on by default and can be turned off (`DIARIZE_OUTPUT`, amended 2026-11-07); with it off the turns are still there, unattributed.
 
-Three pieces:
+Four pieces:
 
 - **`transcribe_audio`** (tool) — takes a path and an optional `language` override, uploads the
   whole file to Deepgram's pre-recorded endpoint, receives JSON, assembles Markdown, places it at
-  the output path. The override is for one call only; it never writes back to `.env`.
+  the output path. The override is for one call only; it never writes back to `settings.json`.
 - **`rename_speakers`** (tool) — takes a transcript path and a list of names, deterministically rewrites speaker labels to a given list of names.
 - **`transcribe-audio`** (skill) — the agent-facing instructions: when to use the tool, what to ask
   the user, what the two hard limits are, and the two-phase review flow.
+- **`/diarize login`** (command) — asks for the API key with the input hidden and writes it to
+  `<agent-dir>/diarize-auth.json` beside `auth.json`. It stores that one key and nothing else.
 
 ### The flow
 
@@ -50,11 +52,15 @@ Markdown, for both humans and agents. A short metadata block as a plain list —
 - **Duration:** 41m 12s
 - **Speakers detected:** 3
 - **Run:** 2026-11-06T19:41:02Z
-- **Speaker names:** Alice, Bob, Charlie
+- **Speakers:** Wanda, Vision, Thanos
 
-**Alice[Speaker 1]:** We should start with the numbers from last quarter.
-**Bob[Speaker 2]:** They're in the shared drive, but they're a week old.
-**Charlie[Speaker 3]:** I can pull the latest from the database and send them to you.
+**Wanda[Speaker 1]:** Thanos is coming, we have to get you out of here.
+**Vision[Speaker 2]:** I know, but I can't just leave everyone behind. We have to fight!
+**Thanos[Speaker 3]:** Knock, knock.
+**Wanda[Speaker 1]:** Who's there?
+**Thanos[Speaker 3]:** The end.
+**Vision[Speaker 2]:** The end, who?
+**Thanos[Speaker 3]:** The end of the world as we know it, and I feel fine.
 ```
 
 No YAML frontmatter: this file is read by people and by `grep`, not parsed. Beside it in the output
@@ -70,13 +76,15 @@ In Scope:
 - Markdown output, default directory `./transcriptions/`;
 - the raw JSON kept beside every transcript, same basename;
 - speaker names applied after review;
-- defaults for every tool option read from `./.env` in the working directory.
+- defaults for every tool option bundled in `settings.json`, overridden by `PI_DIARIZE_*`
+  environment variables;
+- an API key stored in `<agent-dir>/diarize-auth.json`, written by `/diarize login`, with
+  `DEEPGRAM_API_KEY` in the environment taking precedence where it is set.
 
 Out of Scope:
 
 - streaming and realtime audio;
 - any provider other than Deepgram;
-- an own credential store or a `login` command;
 - URLs, remote paths, directories, and batches of files;
 - subtitle formats (SRT, VTT), translations, summaries, sentiment;
 
@@ -92,7 +100,9 @@ Planned:
 What gets built, in dependency order. Not a layout: this is a prototype until there is a reason
 for it to stop being one, and naming modules before they exist turns a guess into a requirement.
 
-1. Configuration from `.env` — the key, and the three options with their defaults.
+1. Configuration — the API key from `<agent-dir>/diarize-auth.json`, written by `/diarize login`,
+   or from `DEEPGRAM_API_KEY` where that is set, and the three options with their defaults from the
+   bundled `settings.json`.
 2. The Deepgram request — whole-file upload, the fixed parameter set, and types for the response.
 3. The Markdown renderer — utterances and metadata to a document, from a saved JSON response.
 4. The label rewriter — `Speaker N` prefixes in place, prefix-safe, no network.

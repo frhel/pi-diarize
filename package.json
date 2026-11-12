@@ -1,0 +1,51 @@
+{
+  "name": "pi-diarize",
+  "version": "0.1.0",
+  "description": "A Pi extension that exposes an API-based audio transcription tool.",
+  "license": "MIT",
+  "author": "Freyr Helgason",
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frhel/pi-diarize.git"
+  },
+  "files": [
+    "src",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "diarization",
+    "speaker-diarization",
+    "transcription",
+    "speech-to-text"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/index.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.5.2",
+    "@types/node": "22.19.19",
+    "typescript": "5.9.3"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
+  }
+}
